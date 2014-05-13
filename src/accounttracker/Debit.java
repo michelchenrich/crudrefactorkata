@@ -1,8 +1,6 @@
-package accounttracker.entities;
+package accounttracker;
 
-import accounttracker.DebitAttributes;
-
-public class Debit implements DebitAttributes {
+public class Debit {
     private double value;
     private String description;
 
@@ -17,13 +15,5 @@ public class Debit implements DebitAttributes {
 
     public String description() {
         return description;
-    }
-
-    public void setValue(double value) {
-        this.value = value;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 }

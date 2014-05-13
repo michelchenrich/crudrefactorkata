@@ -1,7 +1,5 @@
 package accounttracker;
 
-import accounttracker.entities.Debit;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,8 +19,7 @@ public class AccountTracker {
     public static void updateDebit(String id, double value, String description, List<String> messages) {
         if (validate(value, description, messages)) return;
 
-        debits.get(id).setValue(value);
-        debits.get(id).setDescription(description);
+        debits.put(id, new Debit(value, description));
     }
 
     private static boolean validate(double value, String description, List<String> messages) {
@@ -31,7 +28,7 @@ public class AccountTracker {
         return !messages.isEmpty();
     }
 
-    public static DebitAttributes readDebit(String id) {
+    public static Debit readDebit(String id) {
         if (debits.containsKey(id)) return debits.get(id);
         else throw new DebitNotFoundException(id);
     }
