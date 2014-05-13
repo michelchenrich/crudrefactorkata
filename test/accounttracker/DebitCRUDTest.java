@@ -1,25 +1,47 @@
 package accounttracker;
 
+import accounttracker.inmemory.InMemoryDebitStore;
+import accounttracker.usecases.CreateDebitCommand;
+import accounttracker.usecases.DeleteDebitCommand;
+import accounttracker.usecases.ReadDebitCommand;
+import accounttracker.usecases.UpdateDebitCommand;
+import accounttracker.usecases.boundaries.DebitNotFoundException;
+import accounttracker.usecases.boundaries.DebitStore;
+import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static accounttracker.AccountTracker.*;
 import static org.junit.Assert.*;
 
 public class DebitCRUDTest {
-    private final List<String> messages = new ArrayList<String>();
+    private ReceiverSpy receiver;
+    private DebitStore debitStore = new InMemoryDebitStore();
+
+    private void createDebit(double value, String description) {
+        new CreateDebitCommand(new DebitRequestStub(value, description), receiver, debitStore).execute();
+    }
+
+    private void readDebit(String id) {
+        new ReadDebitCommand(new IdBasedRequestStub(id), receiver, debitStore).execute();
+    }
+
+    private void updateDebit(double value, String description) {
+        new UpdateDebitCommand(new UpdateDebitRequestStub(receiver.id, value, description), receiver, debitStore).execute();
+    }
+
+    private void deleteDebit() {
+        new DeleteDebitCommand(new IdBasedRequestStub(receiver.id), debitStore).execute();
+    }
 
     private void assertReturnedError(String... messages) {
-        assertEquals(messages.length, this.messages.size());
-        assertArrayEquals(messages, this.messages.toArray());
-        this.messages.clear();
+        assertEquals(messages.length, receiver.messages.size());
+        assertArrayEquals(messages, receiver.messages.toArray());
+        receiver.messages.clear();
     }
 
     private void assertDebitAttributes(String id, double value, String description) {
-        assertEquals(value, readDebit(id).value(), 0.01);
-        assertEquals(description, readDebit(id).description());
+        readDebit(id);
+        assertEquals(value, receiver.value, 0.01);
+        assertEquals(description, receiver.description);
     }
 
     private void assertDebitNotFound(String id) {
@@ -31,83 +53,90 @@ public class DebitCRUDTest {
         }
     }
 
+    @Before
+    public void setUp() {
+        receiver = new ReceiverSpy();
+    }
+
     @Test
     public void whenCreatingWithInvalidValue_mustReturnMessage() {
-        String id = createDebit(0d, "Free food", messages);
-        assertTrue(id.isEmpty());
+        createDebit(0d, "Free food");
+        assertNull(receiver.id);
         assertReturnedError("valueMustBeGreaterThanZero");
 
-        id = createDebit(-1d, "Free food", messages);
-        assertTrue(id.isEmpty());
+        createDebit(-1d, "Free food");
+        assertNull(receiver.id);
         assertReturnedError("valueMustBeGreaterThanZero");
     }
 
     @Test
     public void whenCreatingWithInvalidDescription_mustReturnMessage() {
-        String id = createDebit(100d, "", messages);
-        assertTrue(id.isEmpty());
+        createDebit(100d, "");
+        assertNull(receiver.id);
         assertReturnedError("descriptionMustNotBeEmpty");
 
-        id = createDebit(100d, null, messages);
-        assertTrue(id.isEmpty());
+        createDebit(100d, null);
+        assertNull(receiver.id);
         assertReturnedError("descriptionMustNotBeEmpty");
     }
 
     @Test
     public void whenReadingWithTheReturnedId_mustReturnAttributes() {
-        String id = createDebit(10d, "Lunch", messages);
-        assertDebitAttributes(id, 10d, "Lunch");
+        createDebit(10d, "Lunch");
+        assertDebitAttributes(receiver.id, 10d, "Lunch");
     }
 
     @Test
     public void whenCreatingMultiples_shouldBeAbleToReadThemOutOfOrder() {
-        String id2 = createDebit(20d, "Dinner", messages);
-        String id1 = createDebit(10d, "Lunch", messages);
+        createDebit(20d, "Dinner");
+        String id2 = receiver.id;
+        createDebit(10d, "Lunch");
+        String id1 = receiver.id;
         assertDebitAttributes(id1, 10d, "Lunch");
         assertDebitAttributes(id2, 20d, "Dinner");
     }
 
     @Test
     public void afterUpdatingDebit_mustReturnNewAttributes() {
-        String id = createDebit(12d, "Snack", messages);
-        updateDebit(id, 12.5, "Late Snack", messages);
-        assertDebitAttributes(id, 12.5, "Late Snack");
+        createDebit(12d, "Snack");
+        updateDebit(12.5, "Late Snack");
+        assertDebitAttributes(receiver.id, 12.5, "Late Snack");
     }
 
     @Test
     public void whenUpdatingWithInvalidValue_mustReturnMessage() {
-        String id = createDebit(1d, "Cheap food", messages);
-        updateDebit(id, 0d, "Free Food", messages);
+        createDebit(1d, "Cheap food");
+        updateDebit(0d, "Free Food");
         assertReturnedError("valueMustBeGreaterThanZero");
 
-        updateDebit(id, -1d, "They Paid Me To Eat Their Food", messages);
+        updateDebit(-1d, "They Paid Me To Eat Their Food");
         assertReturnedError("valueMustBeGreaterThanZero");
     }
 
     @Test
     public void whenUpdatingWithInvalidDescription_mustReturnMessage() {
-        String id = createDebit(1d, "Cheap food", messages);
-        updateDebit(id, 1d, "", messages);
+        createDebit(1d, "Cheap food");
+        updateDebit(1d, "");
         assertReturnedError("descriptionMustNotBeEmpty");
 
-        updateDebit(id, 1d, null, messages);
+        updateDebit(1d, null);
         assertReturnedError("descriptionMustNotBeEmpty");
     }
 
     @Test
     public void whenUpdatingWithError_mustNotUpdate() {
-        String id = createDebit(1d, "Cheap Food", messages);
-        updateDebit(id, 1d, "", messages);
-        assertDebitAttributes(id, 1d, "Cheap Food");
+        createDebit(1d, "Cheap Food");
+        updateDebit(1d, "");
+        assertDebitAttributes(receiver.id, 1d, "Cheap Food");
 
-        updateDebit(id, 0, "Free Food", messages);
-        assertDebitAttributes(id, 1d, "Cheap Food");
+        updateDebit(0, "Free Food");
+        assertDebitAttributes(receiver.id, 1d, "Cheap Food");
     }
 
     @Test
     public void afterDeletingDebit_itMayNotBeReadAnymore() {
-        String id = createDebit(12d, "Snack", messages);
-        deleteDebit(id);
-        assertDebitNotFound(id);
+        createDebit(12d, "Snack");
+        deleteDebit();
+        assertDebitNotFound(receiver.id);
     }
 }

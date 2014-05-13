@@ -1,10 +1,13 @@
 package accounttracker;
 
-public class Debit {
+import accounttracker.usecases.boundaries.UpdateDebitRequest;
+
+public class UpdateDebitRequestStub extends IdBasedRequestStub implements UpdateDebitRequest {
     private double value;
     private String description;
 
-    public Debit(double value, String description) {
+    public UpdateDebitRequestStub(String id, double value, String description) {
+        super(id);
         this.value = value;
         this.description = description;
     }

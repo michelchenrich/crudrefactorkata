@@ -1,4 +1,4 @@
-package accounttracker;
+package accounttracker.usecases.boundaries;
 
 public class DebitNotFoundException extends RuntimeException {
     private String debitId;
