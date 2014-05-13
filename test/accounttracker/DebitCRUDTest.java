@@ -17,19 +17,19 @@ public class DebitCRUDTest {
     private DebitStore debitStore = new InMemoryDebitStore();
 
     private void createDebit(double value, String description) {
-        new CreateDebitCommand(new DebitRequestStub(value, description), receiver, debitStore).execute();
+        new CreateDebitCommand(new RequestStub(value, description), receiver, debitStore).execute();
     }
 
     private void readDebit(String id) {
-        new ReadDebitCommand(new IdBasedRequestStub(id), receiver, debitStore).execute();
+        new ReadDebitCommand(new RequestStub(id), receiver, debitStore).execute();
     }
 
     private void updateDebit(double value, String description) {
-        new UpdateDebitCommand(new UpdateDebitRequestStub(receiver.id, value, description), receiver, debitStore).execute();
+        new UpdateDebitCommand(new RequestStub(receiver.id, value, description), receiver, debitStore).execute();
     }
 
     private void deleteDebit() {
-        new DeleteDebitCommand(new IdBasedRequestStub(receiver.id), debitStore).execute();
+        new DeleteDebitCommand(new RequestStub(receiver.id), debitStore).execute();
     }
 
     private void assertReturnedError(String... messages) {
