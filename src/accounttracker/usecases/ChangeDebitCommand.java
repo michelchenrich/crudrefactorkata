@@ -17,12 +17,15 @@ public abstract class ChangeDebitCommand {
     }
 
     public final void execute() {
-        Debit debit = getTargetDebit().updateWith(request);
+        Debit debit = getTarget().updateWith(request);
 
         if (debit.isValid()) saveDebit(debit);
         else debit.sendErrors(receiver);
     }
 
-    protected abstract Debit getTargetDebit();
-    protected abstract void saveDebit(Debit debit);
+    protected abstract Debit getTarget();
+
+    protected void saveDebit(Debit debit) {
+        store.save(debit);
+    }
 }

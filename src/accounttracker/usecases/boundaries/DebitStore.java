@@ -7,4 +7,5 @@ public interface DebitStore {
     Debit read(String id) throws DebitNotFoundException;
     void delete(String id);
     Debit save(Debit debit);
+    Debit[] read();
 }

@@ -14,11 +14,7 @@ public class UpdateDebitCommand extends ChangeDebitCommand {
         idRequest = request;
     }
 
-    protected Debit getTargetDebit() {
+    protected Debit getTarget() {
         return store.read(idRequest.id());
-    }
-
-    protected void saveDebit(Debit debit) {
-        store.save(debit);
     }
 }

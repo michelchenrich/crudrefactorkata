@@ -2,22 +2,18 @@ package accounttracker.usecases;
 
 import accounttracker.usecases.boundaries.DebitReceiver;
 import accounttracker.usecases.boundaries.DebitStore;
-import accounttracker.usecases.boundaries.IdBasedRequest;
 import accounttracker.usecases.entities.Debit;
 
 public class ReadDebitCommand {
-    private IdBasedRequest request;
-    private DebitStore store;
-    private DebitReceiver receiver;
+    protected DebitReceiver receiver;
+    protected DebitStore store;
 
-    public ReadDebitCommand(IdBasedRequest request, DebitReceiver receiver, DebitStore store) {
-        this.request = request;
+    public ReadDebitCommand(DebitReceiver receiver, DebitStore store) {
         this.receiver = receiver;
         this.store = store;
     }
 
-    public void execute() {
-        Debit debit = store.read(request.id());
+    protected void sendDebitInfo(Debit debit) {
         receiver.valueIs(debit.value());
         receiver.descriptionIs(debit.description());
     }

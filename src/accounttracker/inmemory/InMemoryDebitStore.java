@@ -27,4 +27,8 @@ public class InMemoryDebitStore implements DebitStore {
     public Debit save(Debit debit) {
         return debits.put(debit.id(), debit);
     }
+
+    public Debit[] read() {
+        return debits.values().toArray(new Debit[debits.size()]);
+    }
 }

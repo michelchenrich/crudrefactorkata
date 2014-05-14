@@ -1,27 +1,16 @@
 package accounttracker;
 
-import accounttracker.inmemory.InMemoryDebitStore;
-import accounttracker.usecases.CreateDebitCommand;
 import accounttracker.usecases.DeleteDebitCommand;
-import accounttracker.usecases.ReadDebitCommand;
+import accounttracker.usecases.ReadSingleDebitCommand;
 import accounttracker.usecases.UpdateDebitCommand;
 import accounttracker.usecases.boundaries.DebitNotFoundException;
-import accounttracker.usecases.boundaries.DebitStore;
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class DebitCRUDTest {
-    private ReceiverSpy receiver;
-    private DebitStore debitStore = new InMemoryDebitStore();
-
-    private void createDebit(double value, String description) {
-        new CreateDebitCommand(new RequestStub(value, description), receiver, debitStore).execute();
-    }
-
+public class DebitCRUDTest extends DebitTest {
     private void readDebit(String id) {
-        new ReadDebitCommand(new RequestStub(id), receiver, debitStore).execute();
+        new ReadSingleDebitCommand(new RequestStub(id), receiver, debitStore).execute();
     }
 
     private void updateDebit(double value, String description) {
@@ -51,11 +40,6 @@ public class DebitCRUDTest {
         } catch (DebitNotFoundException exception) {
             assertEquals(id, exception.debitId());
         }
-    }
-
-    @Before
-    public void setUp() {
-        receiver = new ReceiverSpy();
     }
 
     @Test

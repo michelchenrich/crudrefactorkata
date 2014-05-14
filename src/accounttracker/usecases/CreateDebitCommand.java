@@ -13,12 +13,12 @@ public class CreateDebitCommand extends ChangeDebitCommand {
         createReceiver = receiver;
     }
 
-    protected Debit getTargetDebit() {
+    protected Debit getTarget() {
         return store.create();
     }
 
     protected void saveDebit(Debit debit) {
-        store.save(debit);
+        super.saveDebit(debit);
         createReceiver.createdWithId(debit.id());
     }
 }
