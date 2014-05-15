@@ -6,23 +6,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 class IterativeReceiverSpy implements IterativeDebitReceiver {
-    public List<String> debits = new ArrayList<String>();
-    private String debit = "";
+    public List<Object[]> debits = new ArrayList<Object[]>();
+    private Object[] debitData;
 
     public void debitStart(String id) {
-        debit += String.format("[%s", id);
+        debitData = new Object[3];
+        debitData[0] = id;
     }
 
     public void valueIs(double value) {
-        debit += String.format(", %.1f", value);
+        debitData[1] = value;
     }
 
     public void descriptionIs(String description) {
-        debit += String.format(", %s]", description);
+        debitData[2] = description;
     }
 
     public void endDebit() {
-        debits.add(debit);
-        debit = "";
+        debits.add(debitData);
     }
 }

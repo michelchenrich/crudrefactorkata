@@ -1,7 +1,7 @@
 package accounttracker;
 
 import accounttracker.usecases.DeleteDebitCommand;
-import accounttracker.usecases.ReadSingleDebitCommand;
+import accounttracker.usecases.ReadDebitCommand;
 import accounttracker.usecases.UpdateDebitCommand;
 import accounttracker.usecases.boundaries.DebitNotFoundException;
 import org.junit.Test;
@@ -10,7 +10,7 @@ import static org.junit.Assert.*;
 
 public class DebitCRUDTest extends DebitTest {
     private void readDebit(String id) {
-        new ReadSingleDebitCommand(new RequestStub(id), receiver, debitStore).execute();
+        new ReadDebitCommand(new RequestStub(id), receiver, debitStore).execute();
     }
 
     private void updateDebit(double value, String description) {

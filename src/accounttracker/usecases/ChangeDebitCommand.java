@@ -5,7 +5,7 @@ import accounttracker.usecases.boundaries.DebitRequest;
 import accounttracker.usecases.boundaries.DebitStore;
 import accounttracker.usecases.entities.Debit;
 
-public abstract class ChangeDebitCommand {
+public abstract class ChangeDebitCommand implements Command {
     protected DebitRequest request;
     protected DebitMessageReceiver receiver;
     protected DebitStore store;

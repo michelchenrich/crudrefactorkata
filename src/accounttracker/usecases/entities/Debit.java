@@ -1,13 +1,19 @@
 package accounttracker.usecases.entities;
 
 import accounttracker.usecases.boundaries.DebitMessageReceiver;
+import accounttracker.usecases.boundaries.DebitReceiver;
 import accounttracker.usecases.boundaries.DebitRequest;
 
 public abstract class Debit {
     public abstract String id();
-    public abstract double value();
-    public abstract String description();
+    protected abstract double value();
+    protected abstract String description();
     public abstract Debit updateWith(DebitRequest request);
+
+    public void sendData(DebitReceiver receiver) {
+        receiver.valueIs(value());
+        receiver.descriptionIs(description());
+    }
 
     public void sendErrors(DebitMessageReceiver receiver) {
         if (valueLowerOrEqualToZero()) receiver.valueMustBeGreaterThanZero();

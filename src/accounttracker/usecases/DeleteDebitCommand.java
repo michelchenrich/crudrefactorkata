@@ -3,7 +3,7 @@ package accounttracker.usecases;
 import accounttracker.usecases.boundaries.DebitStore;
 import accounttracker.usecases.boundaries.IdBasedRequest;
 
-public class DeleteDebitCommand {
+public class DeleteDebitCommand implements Command {
     private IdBasedRequest request;
     private DebitStore store;
 

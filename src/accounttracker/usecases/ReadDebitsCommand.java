@@ -4,21 +4,22 @@ import accounttracker.usecases.boundaries.DebitStore;
 import accounttracker.usecases.boundaries.IterativeDebitReceiver;
 import accounttracker.usecases.entities.Debit;
 
-public class ReadDebitsCommand extends ReadDebitCommand {
-    private IterativeDebitReceiver iterativeReceiver;
+public class ReadDebitsCommand implements Command {
+    private DebitStore store;
+    private IterativeDebitReceiver receiver;
 
     public ReadDebitsCommand(IterativeDebitReceiver receiver, DebitStore store) {
-        super(receiver, store);
-        iterativeReceiver = receiver;
+        this.receiver = receiver;
+        this.store = store;
     }
 
     public void execute() {
-        for (Debit debit : store.read()) sendDebitInfo(debit);
+        for (Debit debit : store.read()) sendDebitData(debit);
     }
 
-    public void sendDebitInfo(Debit debit) {
-        iterativeReceiver.debitStart(debit.id());
-        super.sendDebitInfo(debit);
-        iterativeReceiver.endDebit();
+    public void sendDebitData(Debit debit) {
+        receiver.debitStart(debit.id());
+        debit.sendData(receiver);
+        receiver.endDebit();
     }
 }

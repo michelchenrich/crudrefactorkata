@@ -9,8 +9,9 @@ public class DebitTest {
     protected ReceiverSpy receiver;
     protected DebitStore debitStore;
 
-    protected void createDebit(double value, String description) {
+    protected String createDebit(double value, String description) {
         new CreateDebitCommand(new RequestStub(value, description), receiver, debitStore).execute();
+        return receiver.id;
     }
 
     @Before
